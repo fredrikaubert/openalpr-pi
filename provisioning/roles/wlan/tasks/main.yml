@@ -1,0 +1,16 @@
+---
+- name: Configure WIFI
+  template: src=wpa_supplicant.conf dest=/etc/wpa_supplicant/wpa_supplicant.conf mode=0600
+  sudo: true
+    
+    
+- name: Don't start window manager on boot
+  command: 'update-rc.d -f lightdm remove'    
+  sudo: true
+  
+
+# TODO: Resize image using fdisk. 
+
+  
+# - name: 'Reboot'
+#  command: /sbin/reboot -t now

@@ -1,0 +1,49 @@
+## TODO don't do resize and reboot if not needed
+- name: Enable camera
+  lineinfile: >
+    dest=/boot/config.txt
+    regexp=start_x
+    line='start_x=1' 
+  sudo: true
+
+
+- name: Assign enough memory to GPU
+  lineinfile: >
+    dest=/boot/config.txt
+    regexp=gpu_mem
+    line='gpu_mem=128' 
+  sudo: true
+
+- name: Disable camera led
+  lineinfile: >
+    dest=/boot/config.txt
+    regexp=disable_camera_led
+    line='disable_camera_led=1' 
+  sudo: true
+
+#http://www.freelists.org/post/raspberry-vi/Script-to-expand-root-file-system-without-using-raspiconfig
+- name: Resize file system
+  script: ../files/fsresize.sh
+  sudo: true
+  
+- name: Restart raspberry
+  command: shutdown -r now "Ansible updates triggered"
+  async: 0
+  poll: 0
+  ignore_errors: true
+  sudo: true
+
+
+- name: Wait for raspberry to restart
+  local_action:
+    wait_for
+    host={{ inventory_hostname }}
+    port=22
+    delay=30
+    timeout=300
+  sudo: false
+
+  
+
+
+

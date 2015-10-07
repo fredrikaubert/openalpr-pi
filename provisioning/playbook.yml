@@ -1,0 +1,11 @@
+
+- hosts: alpr-server
+  vars:
+    - zwave_tty: ttyZWAVE
+    - rfxcom_tty: ttyRFXCOM
+
+  roles:
+#    - os
+    - wlan
+#    - mjpegstreamer
+#    - alprd

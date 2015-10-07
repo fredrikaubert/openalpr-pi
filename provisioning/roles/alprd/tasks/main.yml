@@ -1,0 +1,231 @@
+#- name: Remove conflicting packages
+#  apt: name={{item}} purge=true
+#  sudo: true
+#  with_items:
+#    - tesseract
+#    - opencv
+
+
+- name: Install required packages
+  apt: name={{item}} update_cache=yes
+  sudo: true
+  with_items:
+    - autoconf
+    - automake
+    - libtool
+    - libpng12-dev
+    - libtiff4-dev
+    - zlib1g-dev
+    - git-core
+    - cmake
+    - liblog4cplus-dev
+    - libcurl3-dev
+    - uuid-dev
+    - build-essential
+    - libjpeg-dev
+    - libatlas-base-dev 
+    - gfortran
+    - ffmpeg
+    - libjpeg8-dev  
+    - libavcodec-dev 
+    - libavformat-dev
+    - libswscale-dev  
+    - beanstalkd
+    
+- name: Checkout open-alpr from git
+  git: repo=https://github.com/openalpr/openalpr.git
+       dest=/home/pi/alpr/openalpr/openalpr
+   
+- name: Create library directory
+  file: >
+    state=directory
+    path=/home/pi/alpr/openalpr/libraries
+
+- name: Download required libraries 1
+  get_url: >
+    url=https://github.com/tesseract-ocr/tesseract/archive/{{tesseract_version}}.zip
+    dest=/home/pi/alpr/openalpr/libraries/tesseract-ocr-{{tesseract_version}}.zip
+
+# TODO: no tags exist for versioning languagedata. Hoping master will work. Replace if actual version is found.
+- name: Download required libraries 2
+  get_url: >
+    url=https://github.com/tesseract-ocr/tessdata/archive/master.zip
+    dest=/home/pi/alpr/openalpr/libraries/tesseract-ocr-{{tesseract_version}}.lang.zip
+
+- name: Download required libraries 3
+  get_url: >
+    url=http://www.leptonica.org/source/leptonica-{{ leptonica_version }}.tar.gz
+    dest=/home/pi/alpr/openalpr/libraries/leptonica-{{ leptonica_version }}.tar.gz
+
+- name: Download required libraries 4
+  get_url: >
+    url=http://downloads.sourceforge.net/project/opencvlibrary/opencv-unix/{{ opencv_version }}/opencv-{{ opencv_version }}.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fopencvlibrary%2Ffiles%2Fopencv-unix%2F{{ opencv_version }}%2F&ts=1437511943&use_mirror=netcologne
+    dest=/home/pi/alpr/openalpr/libraries/opencv-{{ opencv_version }}.zip
+
+
+
+- name: Unzip libraries
+  unarchive: >
+    src=/home/pi/alpr/openalpr/libraries/{{item}}
+    dest=/home/pi/alpr/openalpr/libraries/
+    copy=no
+  with_items: 
+    - tesseract-ocr-{{ tesseract_version }}.zip
+    - leptonica-{{ leptonica_version }}.tar.gz
+    - opencv-{{ opencv_version }}.zip
+
+# temp removed becaouse long build time:
+    
+- name: Build Leptonica 1
+  command: ./configure --prefix=/usr/local
+  args: 
+    chdir: /home/pi/alpr/openalpr/libraries/leptonica-{{ leptonica_version }}
+    
+- name: Build Leptonica 2
+  command: make
+  args: 
+    chdir: /home/pi/alpr/openalpr/libraries/leptonica-{{ leptonica_version }}
+ 
+- name: Build Leptonica 3
+  command: make install
+  sudo: true
+  args: 
+    chdir: /home/pi/alpr/openalpr/libraries/leptonica-{{ leptonica_version }}
+ 
+- name: Build tesseract 1
+  command: ./autogen.sh
+  args: 
+    chdir: /home/pi/alpr/openalpr/libraries/tesseract-{{tesseract_version}}
+    
+- name: Build tesseract 2
+  command: ./configure
+  args: 
+    chdir: /home/pi/alpr/openalpr/libraries/tesseract-{{tesseract_version}}
+ 
+- name: Build tesseract 3
+  command: make 
+  args: 
+    chdir: /home/pi/alpr/openalpr/libraries/tesseract-{{tesseract_version}}
+
+- name: Build tesseract 4
+  command: make install
+  sudo: true
+  args: 
+    chdir: /home/pi/alpr/openalpr/libraries/tesseract-{{tesseract_version}}
+
+- name: Build tesseract 5
+  command: ldconfig
+  sudo: true
+  args: 
+    chdir: /home/pi/alpr/openalpr/libraries/tesseract-{{tesseract_version}}
+
+# Failes with "No such file or directory". Dont know why
+#- name: Build tesseract 6
+#  command: export TESSDATA_PREFIX=/home/pi/alpr/openalpr/libraries/tesseract-ocr/tessdata   
+       
+- name: Unzip libraries
+  unarchive: >
+    src=/home/pi/alpr/openalpr/libraries/{{item}}
+    dest=/home/pi/alpr/openalpr/libraries/
+    copy=no
+  with_items: 
+    - tesseract-ocr-{{tesseract_version}}.lang.zip
+ 
+ 
+
+- name: Build opencv 1
+  file: >
+    state=directory
+    path=/home/pi/alpr/openalpr/libraries/opencv-{{ opencv_version }}/release
+ 
+  
+- name: Build opencv 2
+  command: cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local ..
+  args: 
+    chdir: /home/pi/alpr/openalpr/libraries/opencv-{{ opencv_version }}/release
+ 
+- name: Build opencv 3
+  command: make 
+  args: 
+    chdir: /home/pi/alpr/openalpr/libraries/opencv-{{ opencv_version }}/release
+
+- name: Build opencv 4
+  command: make install
+  sudo: true
+  args: 
+    chdir: /home/pi/alpr/openalpr/libraries/opencv-{{ opencv_version }}/release
+
+
+#- name: Update CMakeLists for openalpr
+#  lineinfile: >
+#    dest=/home/pi/alpr/openalpr/openalpr/src/CMakeLists.txt 
+#    regexp=r"SET\(OpenCV_DIR" 
+#    line='SET(OpenCV_DIR "/usr/local/lib")'
+
+#- name: Update CMakeLists for openalpr
+#  lineinfile: >
+#    dest=/home/pi/alpr/openalpr/openalpr/src/CMakeLists.txt 
+#    regexp=r"SET\(Tesseract_DIR"
+#    line='SET(Tesseract_DIR "/home/pi/alpr/openalpr/libraries/tesseract-ocr")'
+  
+- name: Compile openalpr 1
+  command: cmake ./
+  args: 
+    chdir: /home/pi/alpr/openalpr/openalpr/src/
+
+- name: Compile openalpr 2
+  command: make
+  args: 
+    chdir: /home/pi/alpr/openalpr/openalpr/src/
+
+- name: Compile openalpr 3
+  command: make install
+  args: 
+    chdir: /home/pi/alpr/openalpr/openalpr/src/
+  sudo: true
+  
+- name: Configure beanstalkd to start on boot
+  lineinfile: >
+    dest=/etc/default/beanstalkd 
+    regexp=^START
+    line="START=yes" 
+  sudo: true
+  
+- name: Configuring openalprd
+  lineinfile: >
+    dest=/etc/openalpr/alprd.conf 
+    regexp="^country"
+    line="country = {{alpr_country}}"
+  sudo: true
+
+- name: Configuring openalprd
+  lineinfile: >
+    dest=/etc/openalpr/alprd.conf 
+    regexp="^site_id"
+    line='site_id = rpi'
+  sudo: true
+  
+- name: Configuring openalprd
+  lineinfile: >
+    dest=/etc/openalpr/alprd.conf 
+    regexp="^stream"
+    line='stream = http://127.0.0.1:8080/?action=stream' 
+  sudo: true
+
+
+- name: Start alprd on boot
+  lineinfile: >
+    dest=/etc/rc.local
+    regexp="alprd"
+    line='alprd' 
+    insertbefore="exit 0"
+  sudo: true
+
+
+
+
+ 
+ 
+ 
+
+

@@ -1,0 +1,71 @@
+- name: Install required packages
+  apt: name={{item}} update_cache=yes
+  sudo: true
+  with_items:
+    - libjpeg8-dev
+    - imagemagick
+    - libv4l-dev
+    - cmake
+    
+- name: Link videodev.h
+  file: state=link src=/usr/include/linux/videodev2.h dest=/usr/include/linux/videodev.h
+  sudo: true
+    
+- name: Download mjpeg-streamer
+  get_url: >
+    url=https://github.com/jacksonliam/mjpg-streamer/archive/master.zip
+    dest=/tmp/mjpg-streamer-code.zip
+    
+
+- name: create mjpeg-stream directory
+  file: >
+    state=directory
+    path=/home/pi/alpr/mjpeg-streamer
+    
+
+- name: Unzip mjpeg-streamer
+  unarchive: >
+    src=/tmp/mjpg-streamer-code.zip
+    dest=/home/pi/alpr/mjpeg-streamer
+    copy=no
+    
+- name: Build mjpeg-streamer
+  command: make clean all
+  args: 
+    chdir: /home/pi/alpr/mjpeg-streamer/mjpg-streamer-master/mjpg-streamer-experimental
+    
+- name: copy mjpeg-streamer
+  command: cp /home/pi/alpr/mjpeg-streamer/mjpg-streamer-master/mjpg-streamer-experimental/mjpg_streamer /usr/local/bin/mjpg_streamer
+  sudo: true
+  
+- name: link mjpeg-streamer librarys   
+  command: cp /home/pi/alpr/mjpeg-streamer/mjpg-streamer-master/mjpg-streamer-experimental/{{item}} /usr/local/lib/{{item}} 
+  with_items:
+    - output_http.so 
+    - input_raspicam.so
+  sudo: true
+
+- name: copy www
+  command: cp -r /home/pi/alpr/mjpeg-streamer/mjpg-streamer-master/mjpg-streamer-experimental/www /usr/local/www
+  sudo: true
+
+- name: Start mjpeg-streamer on boot 1
+  lineinfile: > 
+    dest=/etc/rc.local 
+    regexp=r"/usr/local/bin/mjpg_streamer"
+    line='/usr/local/bin/mjpg_streamer -i "input_raspicam.so -x 1280 -y 720 -fps 5" -o "output_http.so -w /usr/local/www" &'
+    insertbefore="exit 0"
+  sudo: true
+ 
+- name: Start mjpeg-streamer on boot 2
+  lineinfile: >
+    dest=/etc/rc.local 
+    regexp=r"export LD_LIBRARY_PATH=" 
+    line='export LD_LIBRARY_PATH=/usr/local/lib' 
+    insertbefore="mjpg_streamer"
+  sudo: true
+
+ 
+ 
+
+

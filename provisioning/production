@@ -1,0 +1,3 @@
+[alpr-server]
+192.168.0.248 ansible_connection=ssh ansible_ssh_user=pi
+#192.168.0.167 ansible_connection=ssh ansible_ssh_user=pi

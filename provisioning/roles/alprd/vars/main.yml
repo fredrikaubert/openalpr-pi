@@ -1,0 +1,6 @@
+tesseract_version: 3.03-rc1
+leptonica_version: 1.72
+opencv_version: 2.4.11
+# eu or us
+alpr_country: eu 
+
