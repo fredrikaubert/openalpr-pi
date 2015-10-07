@@ -12,13 +12,14 @@ Uses ansible to install openalpr on a raspberry pi. Once complete, openalprd wil
 
 ## What you need
 
-*. Raspberry Pi with camera module
-*. SD Card with Raspbian
+* Raspberry Pi with camera module
+* SD Card with Raspbian
 
 ## What you must do
 
 1. Connect rPi to network
 2. Export your key to rPi 
+
  	ssh pi@<rPi ip address> 'mkdir .ssh'
  	cat ~/.ssh/id_rsa.pub | ssh pi@<rPi ip address> 'cat >> .ssh/authorized_key'
 
@@ -26,6 +27,7 @@ Uses ansible to install openalpr on a raspberry pi. Once complete, openalprd wil
 4. Copy provisioning/roles/wlan/vars/main.yml.example to provisioning/roles/wlan/vars/main.yml, and enter your wifi credentials (or delete the "wlan" line in playbook.yml if you don't want wlan). 
 
 5. Run the playbook:
+
 	ansible-playbook -i production playbook.yml
 
 The whole process takes some 8 hours on rPi2.
