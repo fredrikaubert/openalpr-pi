@@ -20,10 +20,8 @@ Uses ansible to install openalpr (https://github.com/openalpr/openalpr) on a ras
 1. Connect rPi to network
 2. Export your key to rPi 
 
-```
-ssh pi@<rPi ip address> 'mkdir .ssh'
-cat ~/.ssh/id_rsa.pub | ssh pi@<rPi ip address> 'cat >> .ssh/authorized_key'
-```
+`ssh pi@<rPi ip address> 'mkdir .ssh'
+`cat ~/.ssh/id_rsa.pub | ssh pi@<rPi ip address> 'cat >> .ssh/authorized_key'
 
 3. Edit the file "production", and modify it with correct ip address to your rPi. 
 4. Copy provisioning/roles/wlan/vars/main.yml.example to provisioning/roles/wlan/vars/main.yml, and enter your wifi credentials (or delete the "wlan" line in playbook.yml if you don't want wlan). 
