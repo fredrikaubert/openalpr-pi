@@ -27,9 +27,9 @@ ssh pi@<rPi ip address> 'mkdir .ssh'
 cat ~/.ssh/id_rsa.pub | ssh pi@<rPi ip address> 'cat >> .ssh/authorized_key'
 ```
 
-* Edit the file "production", and modify it with correct ip address to your rPi. 
+* Edit the file `provisioning/production`, and modify it with correct ip address to your rPi. 
 
-* Copy provisioning/roles/wlan/vars/main.yml.example to provisioning/roles/wlan/vars/main.yml, and enter your wifi credentials (or delete the "wlan" line in playbook.yml if you don't want wlan). 
+* Copy `provisioning/roles/wlan/vars/main.yml.example` to `provisioning/roles/wlan/vars/main.yml`, and enter your wifi credentials (or delete the `wlan` line in playbook.yml if you don't want wlan). 
 
 * Run the playbook:
 
@@ -37,4 +37,4 @@ cat ~/.ssh/id_rsa.pub | ssh pi@<rPi ip address> 'cat >> .ssh/authorized_key'
 ansible-playbook -i production playbook.yml
 ```
 
-The whole process takes some 8 hours on rPi2.
+The whole process takes some 8-10 hours on rPi2.
