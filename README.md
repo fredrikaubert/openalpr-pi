@@ -1,10 +1,11 @@
 # openalpr-pi
 
-Uses ansible to install openalpr (https://github.com/openalpr/openalpr) on a raspberry pi. Once complete, openalprd will run and analyze a mjpeg stream from the raspberry pi camera, and put the result on a beanstalk queue, as described on https://github.com/openalpr/openalpr/wiki/OpenALPR-Daemon-%28alprd%29. 
+[Ansible](http://www.ansible.com/get-started) playbook to install [openalpr](https://github.com/openalpr/openalpr) on a raspberry pi. Once complete, openalprd will run and analyze an mjpeg stream from the raspberry pi camera, and put the result on a beanstalk queue, as described on https://github.com/openalpr/openalpr/wiki/OpenALPR-Daemon-%28alprd%29. 
 
 ## What this ansible playbook will do
 
 * Resize partition to utilize full size of sd card
+* Set up WIFI
 * Install required libraries
 * Install mjpeg-streamer https://github.com/jacksonliam/mjpg-streamer
 * Compile openalpr (and opencv and other required libraries)
